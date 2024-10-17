@@ -26,5 +26,16 @@ shared_script {
     'config/ConfigJail.lua',
     'config/ConfigCabinets.lua',
     'config/ConfigService.lua'
-
 }
+
+dependency {
+	'vorp_core',
+	'vorp_character',
+	'vorp_inventory',
+    'oxmysql',
+	'feather-menu',
+	'vorp_utils',
+    'bcc-utils'
+}
+
+version '1.0.0'

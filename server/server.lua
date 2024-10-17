@@ -3,6 +3,8 @@ VORPInv = exports.vorp_inventory:vorp_inventoryApi()
 
 local Core = exports.vorp_core:GetCore()
 
+BccUtils = exports['bcc-utils'].initiate()
+
 RegisterServerEvent("bcc-law:grabdata") -- Go on duty, add cop count, restrict based off Max cop count event
 AddEventHandler("bcc-law:grabdata", function(id)
     local _source = source
@@ -954,3 +956,5 @@ AddEventHandler('playerDropped', function()
         TriggerClientEvent("bcc-law:onduty", _source, false)
     end
 end)
+
+BccUtils.Versioner.checkFile(GetCurrentResourceName(), 'https://github.com/BryceCanyonCounty/bcc-law')
