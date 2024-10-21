@@ -179,6 +179,7 @@ end
 
 function OpenJailMenu()
     local MyFirstPage = MainMenu:RegisterPage('first:page')
+    local JailID = 'val'
     MyFirstPage:RegisterElement('header', {
         value = _U('lawmenu'),
         slot = "header",
@@ -214,10 +215,9 @@ function OpenJailMenu()
             { display = 'No',  value = false }
         },
     }, function(data)
-        Autotele = data.value
+        Autotele = data.value.value
 
         -- This gets triggered whenever the arrow selected value changes
-        print(TableToString(data.value))
     end)
 
 
@@ -241,9 +241,8 @@ function OpenJailMenu()
             { display = _U('sisika'),  value = "sk" },
         },
     }, function(data)
-        JailID = data.value
+        JailID = data.value.value
         -- This gets triggered whenever the arrow selected value changes
-        print(TableToString(data.value))
     end)
 
     MyFirstPage:RegisterElement('button', {
@@ -314,9 +313,8 @@ function OpenFineMenu()
         start = 1,
         options = BankInfo.names
     }, function(data)
-        bankname = data.value
+        bankname = data.value.value
         -- This gets triggered whenever the arrow selected value changes
-        print(TableToString(data.value))
     end)
 
     MyFirstPage:RegisterElement('button', {
@@ -407,9 +405,8 @@ function OpenChoreMenu()
             { display = _U('choretype'), value = 'cont' }
         }
     }, function(data)
-        selectedchore = data.value
+        selectedchore = data.value.value
         -- This gets triggered whenever the arrow selected value changes
-        print(TableToString(data.value))
     end)
 
     MyFirstPage:RegisterElement('button', {
@@ -773,9 +770,8 @@ AddEventHandler('bcc-law:HireEmployeeMenu', function(chardata, cabid)
         start = 1,
         options = elements
     }, function(data)
-        persontohireid = data.value
+        persontohireid = data.value.value
         -- This gets triggered whenever the arrow selected value changes
-        print(TableToString(data.value))
     end)
     MyFirstPage:RegisterElement('button', {
         label = _U('hireselected'),
@@ -822,9 +818,8 @@ AddEventHandler('bcc-law:FireEmployeeMenu', function(players, cabid)
         start = 1,
         options = elements
     }, function(data)
-        persontofireid = data.value
+        persontofireid = data.value.value
         -- This gets triggered whenever the arrow selected value changes
-        print(TableToString(data.value))
     end)
     MyFirstPage:RegisterElement('button', {
         label = _U('fireselected'),
