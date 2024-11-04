@@ -855,36 +855,36 @@ end)
 
 RegisterServerEvent("bcc-law:RegisterStorageSv") --Update chore amount when chore is completed event
 AddEventHandler("bcc-law:RegisterStorageSv", function()
-    print('is this working')
+    -- print('is this working')
 
     if InventoryOptions.privatestorage then
         if InventoryOptions.allstoragessame then
             local data = {
-                InventoryOptions.id .. 'personal',
-                InventoryOptions.name,
-                InventoryOptions.privatelimit,
-                InventoryOptions.acceptWeapons,
-                false,
-                InventoryOptions.ignorestacklimit,
-                InventoryOptions.whitelistitems,
-                false,
-                InventoryOptions.usewhitelist,
-                InventoryOptions.whitelistweapons
+                id = InventoryOptions.id .. 'personal',
+                name = InventoryOptions.name,
+                limit = InventoryOptions.privatelimit,
+                acceptWeapons = InventoryOptions.acceptWeapons,
+                shared = false,
+                ignoreItemStackLimit = InventoryOptions.ignorestacklimit,
+                whitelistItems = InventoryOptions.whitelistitems,
+                UsePermissions = false,
+                UseBlackList = InventoryOptions.usewhitelist,
+                whitelistWeapons = InventoryOptions.whitelistweapons
             }
             exports.vorp_inventory:registerInventory(data)
         else
             for key, value in pairs(ConfigCabinets.Guncabinets) do
                 local data = {
-                    InventoryOptions.id .. '[' .. key .. ']' .. 'personal',
-                    InventoryOptions.name,
-                    InventoryOptions.privatelimit,
-                    InventoryOptions.acceptWeapons,
-                    false,
-                    InventoryOptions.ignorestacklimit,
-                    InventoryOptions.whitelistitems,
-                    false,
-                    InventoryOptions.usewhitelist,
-                    InventoryOptions.whitelistweapons
+                    id = InventoryOptions.id .. '[' .. key .. ']' .. 'personal',
+                    name = InventoryOptions.name,
+                    limit = InventoryOptions.privatelimit,
+                    acceptWeapons = InventoryOptions.acceptWeapons,
+                    shared = false,
+                    ignoreItemStackLimit = InventoryOptions.ignorestacklimit,
+                    whitelistItems = InventoryOptions.whitelistitems,
+                    UsePermissions = false,
+                    UseBlackList = InventoryOptions.usewhitelist,
+                    whitelistWeapons = InventoryOptions.whitelistweapons
                 }
                 exports.vorp_inventory:registerInventory(data)
             end
@@ -893,31 +893,31 @@ AddEventHandler("bcc-law:RegisterStorageSv", function()
     if InventoryOptions.sharedstorage then
         if InventoryOptions.allstoragessame then
             local data = {
-                InventoryOptions.id,
-                InventoryOptions.name,
-                InventoryOptions.privatelimit,
-                InventoryOptions.acceptWeapons,
-                true,
-                InventoryOptions.ignorestacklimit,
-                InventoryOptions.whitelistitems,
-                false,
-                InventoryOptions.usewhitelist,
-                InventoryOptions.whitelistweapons
+                id = InventoryOptions.id,
+                name = InventoryOptions.name,
+                limit = InventoryOptions.privatelimit,
+                acceptWeapons = InventoryOptions.acceptWeapons,
+                shared = true,
+                ignoreItemStackLimit = InventoryOptions.ignorestacklimit,
+                whitelistItems = InventoryOptions.whitelistitems,
+                UsePermissions = false,
+                UseBlackList = InventoryOptions.usewhitelist,
+                whitelistWeapons = InventoryOptions.whitelistweapons
             }
             exports.vorp_inventory:registerInventory(data)
         else
             for key, value in pairs(ConfigCabinets.Guncabinets) do
                 local data = {
-                    InventoryOptions.id .. '[' .. key .. ']',
-                    InventoryOptions.name,
-                    InventoryOptions.privatelimit,
-                    InventoryOptions.acceptWeapons,
-                    true,
-                    InventoryOptions.ignorestacklimit,
-                    InventoryOptions.whitelistitems,
-                    false,
-                    InventoryOptions.usewhitelist,
-                    InventoryOptions.whitelistweapons
+                    id = InventoryOptions.id .. '[' .. key .. ']',
+                    name = InventoryOptions.name,
+                    limit = InventoryOptions.privatelimit,
+                    acceptWeapons = InventoryOptions.acceptWeapons,
+                    shared = true,
+                    ignoreItemStackLimit = InventoryOptions.ignorestacklimit,
+                    whitelistItems = InventoryOptions.whitelistitems,
+                    UsePermissions = false,
+                    UseBlackList = InventoryOptions.usewhitelist,
+                    whitelistWeapons = InventoryOptions.whitelistweapons
                 }
                 exports.vorp_inventory:registerInventory(data)
             end

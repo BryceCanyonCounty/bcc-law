@@ -32,7 +32,7 @@ ConfigJail.Jails = {
      },
      blackwater = {
           entrance = {
-               x = -766.87, y = -1262.36, z = 44.02
+               x = -766.71, y = -1263.08, z = 44.02
           },
           exit = {
                x = -755.13, y = -1269.58, z = 44.02
