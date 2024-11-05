@@ -3,6 +3,7 @@ local JailID, currentCheck, jaillocation, Open, searchid
 PlayerJob, PlayerJobGrade,
 Choreamount = _U('none')
 Takenmoney, PoliceOnDuty, Search, InWagon = nil, nil, nil, nil
+BccUtils = exports['bcc-utils'].initiate()
 
 local Core = exports.vorp_core:GetCore()
 
@@ -42,9 +43,11 @@ end)
 CreateThread(function()
     while true do
         Wait(10)
-        if PoliceOnDuty then
-            Wait(60000 * PaycheckInfo.Waittime)
-            TriggerServerEvent('bcc-law:GivePaycheck')
+        if PayCheck then
+            if PoliceOnDuty then
+                Wait(60000 * PaycheckInfo.Waittime)
+                TriggerServerEvent('bcc-law:GivePaycheck')
+            end
         end
     end
 end)
@@ -872,8 +875,7 @@ CreateThread(function() -- Timer for leaving community service logic, which jail
                 Autotele = true
                 Location = "sk"
                 local player_server_id = GetPlayerServerId(PlayerId())
-                TriggerServerEvent('bcc-law:JailPlayer', tonumber(player_server_id),
-                    tonumber(ConfigService.CommunityServiceSettings.leftserviceamount), JailID)
+                TriggerServerEvent('bcc-law:JailPlayer', tonumber(player_server_id), tonumber(ConfigService.CommunityServiceSettings.leftserviceamount), JailID)
                 TriggerServerEvent('bcc-law:Jailedservice', source)
             end
         end
@@ -903,8 +905,7 @@ CreateThread(function()
             local dist = GetDistanceBetweenCoords(pl.x, pl.y, pl.z, ConfigJail.Jails.sisika.Commisary.coords.x,
                 ConfigJail.Jails.sisika.Commisary.coords.y, ConfigJail.Jails.sisika.Commisary.coords.z, true)
             if dist < 5 then
-                DrawText3D(ConfigJail.Jails.sisika.Commisary.coords.x, ConfigJail.Jails.sisika.Commisary.coords.y,
-                    ConfigJail.Jails.sisika.Commisary.coords.z, _U('sisika_commisary'))
+                BccUtils.Misc.DrawText3D(ConfigJail.Jails.sisika.Commisary.coords.x, ConfigJail.Jails.sisika.Commisary.coords.y, ConfigJail.Jails.sisika.Commisary.coords.z, _U('sisika_commisary'))
                 if IsControlJustReleased(0, 0x760A9C6F) then
                     TriggerServerEvent('bcc-law:CommisaryAddItem')
                 end
