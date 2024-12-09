@@ -15,10 +15,11 @@ Annesburg = an
 ]]
 ConfigMain.BossGrade = 6 -- Grade of boss rank, has access to boss options.
 ConfigMain.HandcuffHotkeyActive = false
-ConfigMain.synsociety = true -- If you use syn_society and want compatability
+ConfigMain.synsociety = false -- If you use syn_society and want compatability
 ConfigMain.CheckHorse = true -- If you want to check horse ID's
 Locale = 'en'
 
+PayCheck = false -- If true built in paycheck system will activate. If you use another paycheck system make this false
 PaycheckInfo = {
      Waittime = 1, -- minutes to wait before pay
      police = {
@@ -62,7 +63,7 @@ InventoryOptions = {
      sharedlimit = 2500,
      acceptWeapons = true,
      ignorestacklimit = true,
-     whitelisteitems = false, -- or ie  {'wool','water','pickaxe'}
+     whitelistitems = true, -- or ie  {'wool','water','pickaxe'}
      whitelistweapons = false, -- ie {'weapon_revolver_cattleman'}
      usewhitelist = false -- only allow whitelisted items and weapons in
 }
@@ -85,7 +86,7 @@ OnDutyJobs = {
 ConfigMain.ondutycommand = "goonduty"         -- Go on duty Command
 ConfigMain.offdutycommand = "gooffduty"       --Go off duty Command
 ConfigMain.adjustbadgecommand = "adjustbadge" -- Go on duty Command
-ConfigMain.openpolicemenu = "menu"            -- Open Police Menu Command
+ConfigMain.openpolicemenu = "pmenu"            -- Open Police Menu Command
 ConfigMain.jailcommand = 'jail'               --Command to jail for cops and admins
 ConfigMain.unjailcommand = 'unjail'           --Command to unjail for cops and admins
 ConfigMain.finecommand = 'fine'               --Command to fine for cops and admins

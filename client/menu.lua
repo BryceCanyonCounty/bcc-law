@@ -231,7 +231,7 @@ function OpenJailMenu()
         start = 1,
         options = {
             { display = _U('valjail'), value = "val" },
-            { display = _U('bwjail'),  value = 'bw' },
+            { display = _U('bwjail'),  value = "bw" },
             { display = _U('sdjail'),  value = "sd" },
             { display = _U('rhjail'),  value = "rh" },
             { display = _U('stjail'),  value = "st" },
@@ -449,9 +449,12 @@ function WeaponMenu(cabinetid)
         start = 1,
         options = {
             { display = ConfigCabinets.WeaponsandAmmo.RevolverName1, value = ConfigCabinets.WeaponsandAmmo.RevolverSpawnName1 },
+            { display = ConfigCabinets.WeaponsandAmmo.RevolverName2, value = ConfigCabinets.WeaponsandAmmo.RevolverSpawnName2 },
+            { display = ConfigCabinets.WeaponsandAmmo.RepeaterName,  value = ConfigCabinets.WeaponsandAmmo.RepeaterSpawnName },
+            { display = ConfigCabinets.WeaponsandAmmo.RifleName,  value = ConfigCabinets.WeaponsandAmmo.RifleSpawnName },
+            { display = ConfigCabinets.WeaponsandAmmo.ShotgunName,  value = ConfigCabinets.WeaponsandAmmo.ShotgunSpawnName },
             { display = ConfigCabinets.WeaponsandAmmo.KnifeName,     value = ConfigCabinets.WeaponsandAmmo.KnifeSpawnName },
             { display = ConfigCabinets.WeaponsandAmmo.LassoName,     value = ConfigCabinets.WeaponsandAmmo.LassoSpawnName },
-            { display = ConfigCabinets.WeaponsandAmmo.RepeaterName,  value = ConfigCabinets.WeaponsandAmmo.RepeaterSpawnName },
         }
     }, function(data)
         selectedweapon = data.value.value
@@ -494,8 +497,10 @@ function AmmoMenu(cabinetid)
         label = _U('ammooptions'),
         start = 1,
         options = {
-            { display = ConfigCabinets.WeaponsandAmmo.RevolverAmmoType, value = ConfigCabinets.WeaponsandAmmo.RevolverAmmoType },
-            { display = ConfigCabinets.WeaponsandAmmo.RepeaterAmmoType, value = ConfigCabinets.WeaponsandAmmo.RepeaterAmmoType },
+            { display = ConfigCabinets.WeaponsandAmmo.RevolverAmmoName, value = ConfigCabinets.WeaponsandAmmo.RevolverAmmoType },
+            { display = ConfigCabinets.WeaponsandAmmo.RepeaterAmmoName, value = ConfigCabinets.WeaponsandAmmo.RepeaterAmmoType },
+            { display = ConfigCabinets.WeaponsandAmmo.RifleAmmoName, value = ConfigCabinets.WeaponsandAmmo.RifleAmmoType },
+            { display = ConfigCabinets.WeaponsandAmmo.ShotgunAmmoName, value = ConfigCabinets.WeaponsandAmmo.ShotgunAmmoType },
         }
     }, function(data)
         ammotype = data.value.value
