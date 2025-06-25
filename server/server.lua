@@ -859,7 +859,7 @@ AddEventHandler("bcc-law:RegisterStorageSv", function()
 
     if InventoryOptions.privatestorage then
         if InventoryOptions.allstoragessame then
-            local data = {
+            exports.vorp_inventory:registerInventory({
                 id = InventoryOptions.id .. 'personal',
                 name = InventoryOptions.name,
                 limit = InventoryOptions.privatelimit,
@@ -870,11 +870,10 @@ AddEventHandler("bcc-law:RegisterStorageSv", function()
                 UsePermissions = false,
                 UseBlackList = InventoryOptions.usewhitelist,
                 whitelistWeapons = InventoryOptions.whitelistweapons
-            }
-            exports.vorp_inventory:registerInventory(data)
+            })
         else
             for key, value in pairs(ConfigCabinets.Guncabinets) do
-                local data = {
+                exports.vorp_inventory:registerInventory({
                     id = InventoryOptions.id .. '[' .. key .. ']' .. 'personal',
                     name = InventoryOptions.name,
                     limit = InventoryOptions.privatelimit,
@@ -885,17 +884,16 @@ AddEventHandler("bcc-law:RegisterStorageSv", function()
                     UsePermissions = false,
                     UseBlackList = InventoryOptions.usewhitelist,
                     whitelistWeapons = InventoryOptions.whitelistweapons
-                }
-                exports.vorp_inventory:registerInventory(data)
+                })
             end
         end
     end
     if InventoryOptions.sharedstorage then
         if InventoryOptions.allstoragessame then
-            local data = {
+            exports.vorp_inventory:registerInventory({
                 id = InventoryOptions.id,
                 name = InventoryOptions.name,
-                limit = InventoryOptions.privatelimit,
+                limit = InventoryOptions.sharedlimit,
                 acceptWeapons = InventoryOptions.acceptWeapons,
                 shared = true,
                 ignoreItemStackLimit = InventoryOptions.ignorestacklimit,
@@ -903,14 +901,13 @@ AddEventHandler("bcc-law:RegisterStorageSv", function()
                 UsePermissions = false,
                 UseBlackList = InventoryOptions.usewhitelist,
                 whitelistWeapons = InventoryOptions.whitelistweapons
-            }
-            exports.vorp_inventory:registerInventory(data)
+            })
         else
             for key, value in pairs(ConfigCabinets.Guncabinets) do
-                local data = {
+                exports.vorp_inventory:registerInventory({
                     id = InventoryOptions.id .. '[' .. key .. ']',
                     name = InventoryOptions.name,
-                    limit = InventoryOptions.privatelimit,
+                    limit = InventoryOptions.sharedlimit,
                     acceptWeapons = InventoryOptions.acceptWeapons,
                     shared = true,
                     ignoreItemStackLimit = InventoryOptions.ignorestacklimit,
@@ -918,8 +915,7 @@ AddEventHandler("bcc-law:RegisterStorageSv", function()
                     UsePermissions = false,
                     UseBlackList = InventoryOptions.usewhitelist,
                     whitelistWeapons = InventoryOptions.whitelistweapons
-                }
-                exports.vorp_inventory:registerInventory(data)
+                })
             end
         end
     end
