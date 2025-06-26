@@ -40,6 +40,35 @@ CreateThread(function()
     PromptRegisterEnd(Search)
 end)
 
+--- Client Shoot-Alert Logic
+if ConfigMain.UseShootAlert then
+    CreateThread(function()
+        while true do
+            Wait(0)
+            local ped = PlayerPedId()
+                if IsPedShooting(ped) then
+                    for k, e in pairs(Towns) do
+                        local pedLocation = GetEntityCoords(ped)
+                        if GetDistanceBetweenCoords(pedLocation.x, pedLocation.y, pedLocation.z, e.coordinates.x, e.coordinates.y, e.coordinates.z, false) > e.range then
+                            inTown = false
+                            --print("Not in Town")
+                        else
+                            inTown = true
+                            --print("In Town")
+                            break
+                        end
+                    end
+                    print("Shooting")
+                    if inTown then
+                        TriggerServerEvent('bcc-law:ShootAlarm')
+                    end
+                    Wait(2500)
+                end
+            end
+    end)
+end
+---
+
 CreateThread(function()
     while true do
         Wait(10)
