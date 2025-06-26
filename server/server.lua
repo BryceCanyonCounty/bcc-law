@@ -1,9 +1,5 @@
-local VORPInv = {}
-VORPInv = exports.vorp_inventory:vorp_inventoryApi()
-
 local Core = exports.vorp_core:GetCore()
-
-BccUtils = exports['bcc-utils'].initiate()
+local BccUtils = exports['bcc-utils'].initiate()
 
 RegisterServerEvent("bcc-law:grabdata") -- Go on duty, add cop count, restrict based off Max cop count event
 AddEventHandler("bcc-law:grabdata", function(id)
@@ -81,7 +77,7 @@ AddEventHandler('bcc-law:FinePlayer', function(finetype, player, amount, banknam
     local target = Core.getUser(player).getUsedCharacter
     local targetid = target.charIdentifier
     local user = Core.getUser(_source).getUsedCharacter
-    local username = user.firstname .. ' ' .. target.lastname
+    local username = user.firstname .. ' ' .. user.lastname
     local Job = user.job
     local targetname = target.firstname .. ' ' .. target.lastname
 
@@ -166,14 +162,14 @@ AddEventHandler('bcc-law:JailPlayer', function(player, amount, loc)
     local _source = source
     local target = Core.getUser(player).getUsedCharacter
     local user = Core.getUser(_source).getUsedCharacter
-    local username = user.firstname .. ' ' .. target.lastname
+    local username = user.firstname .. ' ' .. user.lastname
     local Job = user.job
     local targetname = target.firstname .. ' ' .. target.lastname
     local steam_id = target.identifier
     local Character = target.charIdentifier
     -- TIME
-    local amount = amount * 60
-    local timestamp = getTime() + amount
+    local time = amount * 60
+    local timestamp = getTime() + time
 
     exports.ghmattimysql:execute(
         "INSERT INTO jail (identifier, characterid, name, time, time_s, jaillocation) VALUES (@identifier, @characterid, @name, @timestamp, @time, @jaillocation)"
@@ -183,14 +179,14 @@ AddEventHandler('bcc-law:JailPlayer', function(player, amount, loc)
             ["@characterid"] = Character,
             ["@name"] = targetname,
             ["@timestamp"] = timestamp,
-            ["@time"] = amount,
+            ["@time"] = time,
             ["@jaillocation"] = loc
         })
-    TriggerClientEvent("bcc-law:JailPlayer", player, amount, loc)
+    TriggerClientEvent("bcc-law:JailPlayer", player, time, loc)
 
     if ConfigWebhook.UseWebhook then
         Core.AddWebhook(ConfigWebhook.WebhookInfo.JailTitle, ConfigWebhook.WebhookInfo.JailWebhook,
-            Job .. ' ' .. username .. _U('sentto') .. targetname .. _U('tojailfor') .. amount .. _U('seconds'),
+            Job .. ' ' .. username .. _U('sentto') .. targetname .. _U('tojailfor') .. time .. _U('seconds'),
             ConfigWebhook.WebhookInfo.JailColor,
             ConfigWebhook.WebhookInfo.JailName, ConfigWebhook.WebhookInfo.JailLogo,
             ConfigWebhook.WebhookInfo.JailFooterLogo,
@@ -203,7 +199,7 @@ AddEventHandler('bcc-law:CommunityService', function(player, chore, amount)
     local _source = source
     local target = Core.getUser(player).getUsedCharacter
     local user = Core.getUser(_source).getUsedCharacter
-    local username = user.firstname .. ' ' .. target.lastname
+    local username = user.firstname .. ' ' .. user.lastname
     local Job = user.job
     local targetname = target.firstname .. ' ' .. target.lastname
     local steam_id = target.identifier
@@ -255,7 +251,7 @@ AddEventHandler("bcc-law:unjailed", function(target_id, loc)
     local _source = source
     local target = Core.getUser(target_id).getUsedCharacter
     local user = Core.getUser(_source).getUsedCharacter
-    local username = user.firstname .. ' ' .. target.lastname
+    local username = user.firstname .. ' ' .. user.lastname
     local Job = user.job
     local targetname = target.firstname .. ' ' .. target.lastname
     local steam_id = target.identifier
@@ -523,7 +519,7 @@ RegisterCommand(ConfigMain.finecommand, function(source, args, rawCommand)
     if Character.group == "admin" or CheckTable(OnDutyJobs, job) then
         TriggerEvent("bcc-law:FinePlayer", tonumber(target), tonumber(fine))
     end
-end)
+end, false)
 
 RegisterCommand(ConfigMain.jailcommand, function(source, args, rawCommand)
     local _source = source -- player source
@@ -538,7 +534,7 @@ RegisterCommand(ConfigMain.jailcommand, function(source, args, rawCommand)
     if Character.group == "admin" or CheckTable(OnDutyJobs, job) then
         TriggerEvent('bcc-law:JailPlayer', tonumber(target), tonumber(jailtime), jailid)
     end
-end)
+end, false)
 
 RegisterCommand(ConfigMain.unjailcommand, function(source, args, rawCommand)
     local _source = source -- player source
@@ -552,7 +548,7 @@ RegisterCommand(ConfigMain.unjailcommand, function(source, args, rawCommand)
             end
         end
     end
-end)
+end, false)
 
 RegisterServerEvent("bcc-law:GetPlayerWagonID") -- Take out vehicle event not currently used
 AddEventHandler("bcc-law:GetPlayerWagonID", function(player)
@@ -859,7 +855,7 @@ AddEventHandler("bcc-law:RegisterStorageSv", function()
 
     if InventoryOptions.privatestorage then
         if InventoryOptions.allstoragessame then
-            local data = {
+            exports.vorp_inventory:registerInventory({
                 id = InventoryOptions.id .. 'personal',
                 name = InventoryOptions.name,
                 limit = InventoryOptions.privatelimit,
@@ -870,11 +866,10 @@ AddEventHandler("bcc-law:RegisterStorageSv", function()
                 UsePermissions = false,
                 UseBlackList = InventoryOptions.usewhitelist,
                 whitelistWeapons = InventoryOptions.whitelistweapons
-            }
-            exports.vorp_inventory:registerInventory(data)
+            })
         else
             for key, value in pairs(ConfigCabinets.Guncabinets) do
-                local data = {
+                exports.vorp_inventory:registerInventory({
                     id = InventoryOptions.id .. '[' .. key .. ']' .. 'personal',
                     name = InventoryOptions.name,
                     limit = InventoryOptions.privatelimit,
@@ -885,17 +880,16 @@ AddEventHandler("bcc-law:RegisterStorageSv", function()
                     UsePermissions = false,
                     UseBlackList = InventoryOptions.usewhitelist,
                     whitelistWeapons = InventoryOptions.whitelistweapons
-                }
-                exports.vorp_inventory:registerInventory(data)
+                })
             end
         end
     end
     if InventoryOptions.sharedstorage then
         if InventoryOptions.allstoragessame then
-            local data = {
+            exports.vorp_inventory:registerInventory({
                 id = InventoryOptions.id,
                 name = InventoryOptions.name,
-                limit = InventoryOptions.privatelimit,
+                limit = InventoryOptions.sharedlimit,
                 acceptWeapons = InventoryOptions.acceptWeapons,
                 shared = true,
                 ignoreItemStackLimit = InventoryOptions.ignorestacklimit,
@@ -903,14 +897,13 @@ AddEventHandler("bcc-law:RegisterStorageSv", function()
                 UsePermissions = false,
                 UseBlackList = InventoryOptions.usewhitelist,
                 whitelistWeapons = InventoryOptions.whitelistweapons
-            }
-            exports.vorp_inventory:registerInventory(data)
+            })
         else
             for key, value in pairs(ConfigCabinets.Guncabinets) do
-                local data = {
+                exports.vorp_inventory:registerInventory({
                     id = InventoryOptions.id .. '[' .. key .. ']',
                     name = InventoryOptions.name,
-                    limit = InventoryOptions.privatelimit,
+                    limit = InventoryOptions.sharedlimit,
                     acceptWeapons = InventoryOptions.acceptWeapons,
                     shared = true,
                     ignoreItemStackLimit = InventoryOptions.ignorestacklimit,
@@ -918,8 +911,7 @@ AddEventHandler("bcc-law:RegisterStorageSv", function()
                     UsePermissions = false,
                     UseBlackList = InventoryOptions.usewhitelist,
                     whitelistWeapons = InventoryOptions.whitelistweapons
-                }
-                exports.vorp_inventory:registerInventory(data)
+                })
             end
         end
     end
