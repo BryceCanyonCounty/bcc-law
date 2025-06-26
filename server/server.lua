@@ -1,6 +1,18 @@
 local Core = exports.vorp_core:GetCore()
 local BccUtils = exports['bcc-utils'].initiate()
 
+--- Server Shoot-Alert Logic
+local policeAlert = exports['bcc-job-alerts']:RegisterAlert(Alerts.Police)
+
+RegisterServerEvent('bcc-law:ShootAlarm', function()
+    local src = source
+    local rnd = math.random(0, 100)
+    if rnd <= ConfigMain.AlertChance then
+        policeAlert:SendAlert(src)
+    end
+end)
+---
+
 RegisterServerEvent("bcc-law:grabdata") -- Go on duty, add cop count, restrict based off Max cop count event
 AddEventHandler("bcc-law:grabdata", function(id)
     local _source = source
