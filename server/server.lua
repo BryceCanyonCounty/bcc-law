@@ -528,7 +528,7 @@ RegisterCommand(ConfigMain.finecommand, function(source, args, rawCommand)
     local Character = Core.getUser(_source).getUsedCharacter
     local target = args[1]
     local fine = args[2]
-    if Character.group == "admin" or CheckTable(OnDutyJobs, job) then
+    if Character.group == "admin" or CheckTable(OnDutyJobs, Character.job) then
         TriggerEvent("bcc-law:FinePlayer", tonumber(target), tonumber(fine))
     end
 end, false)
@@ -555,7 +555,7 @@ RegisterCommand(ConfigMain.unjailcommand, function(source, args, rawCommand)
     local target = tonumber(args[1])
     if target then
         if Core.getUser(target) then
-            if Character.group == "admin" or CheckTable(OnDutyJobs, job) then
+            if Character.group == "admin" or CheckTable(OnDutyJobs, Character.job) then
                 TriggerEvent("bcc-law:unjailed", target)
             end
         end
