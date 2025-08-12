@@ -1,8 +1,8 @@
-local IsHandcuffed, Autotele, Jailed, display, badgeactive = false, true, false, false, false, false
+local IsHandcuffed, Autotele, Jailed, display, badgeactive = false, true, false, false, false
 local JailID, currentCheck, jaillocation, Open, searchid
 PlayerJob, PlayerJobGrade,
 Choreamount = _U('none')
-Takenmoney, PoliceOnDuty, Search, InWagon = nil, nil, nil, nil
+Takenmoney, PoliceOnDuty, InWagon = nil, nil, nil
 BccUtils = exports['bcc-utils'].initiate()
 
 local Core = exports.vorp_core:GetCore()
@@ -17,27 +17,23 @@ Prompt2 = GetRandomIntInRange(0, 0xffffff)
 local prompt = GetRandomIntInRange(0, 0xffffff)
 
 CreateThread(function()
-    local str = _U('opencabinet')
     Open = PromptRegisterBegin()
-    PromptSetControlAction(Open, 0xCEFD9220)
-    str = CreateVarString(10, 'LITERAL_STRING', str)
-    PromptSetText(Open, str)
-    PromptSetEnabled(Open, true)
-    PromptSetVisible(Open, true)
-    PromptSetHoldMode(Open, true, 2000)
-    PromptSetGroup(Open, prompt)
-    PromptRegisterEnd(Open)
+    UiPromptSetControlAction(Open, 0xCEFD9220)
+    UiPromptSetText(Open, CreateVarString(10, 'LITERAL_STRING', _U('opencabinet')))
+    UiPromptSetEnabled(Open, true)
+    UiPromptSetVisible(Open, true)
+    UiPromptSetHoldMode(Open, 2000)
+    UiPromptSetGroup(Open, prompt, 0)
+    UiPromptRegisterEnd(Open)
 
-    local str = _U('search')
     Search = PromptRegisterBegin()
-    PromptSetControlAction(Search, 0xC7B5340A)
-    str = CreateVarString(10, 'LITERAL_STRING', str)
-    PromptSetText(Search, str)
-    PromptSetEnabled(Search, true)
-    PromptSetVisible(Search, true)
-    PromptSetHoldMode(Search, true, 2000)
-    PromptSetGroup(Search, Prompt2)
-    PromptRegisterEnd(Search)
+    UiPromptSetControlAction(Search, 0xC7B5340A)
+    UiPromptSetText(Search, CreateVarString(10, 'LITERAL_STRING', _U('search')))
+    UiPromptSetEnabled(Search, true)
+    UiPromptSetVisible(Search, true)
+    UiPromptSetHoldMode(Search, 2000)
+    UiPromptSetGroup(Search, Prompt2, 0)
+    UiPromptRegisterEnd(Search)
 end)
 
 --- Client Shoot-Alert Logic
@@ -45,38 +41,34 @@ if ConfigMain.UseShootAlert then
     CreateThread(function()
         while true do
             Wait(0)
-            local ped = PlayerPedId()
-                if IsPedShooting(ped) then
-                    for k, e in pairs(Towns) do
-                        local pedLocation = GetEntityCoords(ped)
-                        if GetDistanceBetweenCoords(pedLocation.x, pedLocation.y, pedLocation.z, e.coordinates.x, e.coordinates.y, e.coordinates.z, false) > e.range then
-                            inTown = false
-                            --print("Not in Town")
-                        else
-                            inTown = true
-                            --print("In Town")
-                            break
-                        end
+            local playerPed = PlayerPedId()
+
+            if IsPedShooting(playerPed) then
+                local inTown = false
+
+                for _, town in pairs(Towns) do
+                    local distance = #(GetEntityCoords(playerPed) - town.coordinates)
+                    if distance <= town.range then
+                        inTown = true
+                        break
                     end
-                    print("Shooting")
-                    if inTown then
-                        TriggerServerEvent('bcc-law:ShootAlarm')
-                    end
-                    Wait(2500)
                 end
+
+                if inTown then
+                    TriggerServerEvent('bcc-law:ShootAlarm')
+                end
+                Wait(2500)
             end
+        end
     end)
 end
----
 
 CreateThread(function()
     while true do
         Wait(10)
-        if PayCheck then
-            if PoliceOnDuty then
-                Wait(60000 * PaycheckInfo.Waittime)
-                TriggerServerEvent('bcc-law:GivePaycheck')
-            end
+        if PayCheck and PoliceOnDuty then
+            Wait(60000 * PaycheckInfo.Waittime)
+            TriggerServerEvent('bcc-law:GivePaycheck')
         end
     end
 end)
@@ -97,15 +89,14 @@ CreateThread(function() -- In jail chores to reduce time in jail
             local doingchore = false
             for k, v in pairs(ConfigJail.jailchores) do
                 local blip = N_0x554d9d53f696d002(1664425300, v.x, v.y, v.z)
-                SetBlipSprite(blip, 28148096, 1)
+                SetBlipSprite(blip, 28148096, true)
                 Citizen.InvokeNative(0x9CB1A1623062F402, blip, _U('jailchoreblip'))
                 local coords = GetEntityCoords(PlayerPedId())
                 local currentCheck = Vdist2(coords.x, coords.y, coords.z, v.x, v.y, v.z)
                 if currentCheck < 5 then
                     DrawTxt(_U('presstodotask'), 0.42, 0.90, 0.4, 0.4, true, 255, 255, 255, 255, false)
                     if IsControlJustReleased(0, 0xCEFD9220) and doingchore == false then
-                        TaskStartScenarioInPlace(PlayerPedId(), GetHashKey('WORLD_HUMAN_BROOM_WORKING'), 10000, true,
-                            false, false, false)
+                        TaskStartScenarioInPlace(PlayerPedId(), `WORLD_HUMAN_BROOM_WORKING`, 10000, true)
                         Wait(10000)
                         ClearPedTasksImmediately(PlayerPedId())
                         SetCurrentPedWeapon(PlayerPedId(), GetHashKey('WEAPON_UNARMED'), true) -- unarm player
@@ -155,7 +146,7 @@ CreateThread(function() -- Community Service Logic, including animations minigam
         if Serviced then
             if not Serviceblip then
                 Serviceblip = N_0x554d9d53f696d002(1664425300, Pos.x, Pos.y, Pos.z)
-                SetBlipSprite(Serviceblip, 28148096, 1)
+                SetBlipSprite(Serviceblip, 28148096, true)
                 Citizen.InvokeNative(0x9CB1A1623062F402, Serviceblip, _U('jailchoreblip'))
             end
 
@@ -168,12 +159,9 @@ CreateThread(function() -- Community Service Logic, including animations minigam
                         if test == 100 then
                             local ped = PlayerPedId()
                             if IsPedMale(ped) then
-                                TaskStartScenarioInPlace(PlayerPedId(),
-                                    GetHashKey('PROP_HUMAN_REPAIR_WAGON_WHEEL_ON_SMALL'), 10000, true, false, false,
-                                    false)
+                                TaskStartScenarioInPlace(PlayerPedId(), `PROP_HUMAN_REPAIR_WAGON_WHEEL_ON_SMALL`, 10000, true)
                             else
-                                TaskStartScenarioInPlace(PlayerPedId(), GetHashKey('WORLD_HUMAN_CROUCH_INSPECT'), 10000,
-                                    true, false, false, false)
+                                TaskStartScenarioInPlace(PlayerPedId(), `WORLD_HUMAN_CROUCH_INSPECT`, 10000, true)
                             end
                             Wait(12000)
                             Choreamount = Choreamount - 1
@@ -182,8 +170,7 @@ CreateThread(function() -- Community Service Logic, including animations minigam
                             Core.NotifyBottomRight(_U('taskfailed'), 4000)
                         end
                     else
-                        TaskStartScenarioInPlace(PlayerPedId(), GetHashKey('WORLD_HUMAN_CROUCH_INSPECT'), 10000, true,
-                            false, false, false)
+                        TaskStartScenarioInPlace(PlayerPedId(), `WORLD_HUMAN_CROUCH_INSPECT`, 10000, true)
                         Wait(10000)
                         SetCurrentPedWeapon(PlayerPedId(), GetHashKey('WEAPON_UNARMED'), true) -- unarm player
                     end
@@ -191,8 +178,8 @@ CreateThread(function() -- Community Service Logic, including animations minigam
             end
 
             for k, v in pairs(ConfigService.construction) do
-                local coords = GetEntityCoords(PlayerPedId())
-                if GetDistanceBetweenCoords(coords, v.x, v.y, v.z, true) >
+                local playerCoords = GetEntityCoords(PlayerPedId())
+                if GetDistanceBetweenCoords(playerCoords.x, playerCoords.y, playerCoords.z, v.x, v.y, v.z, true) >
                     ConfigService.CommunityServiceSettings.communityservicedistance then
                     Brokedistance = true
                 else
@@ -207,7 +194,6 @@ CreateThread(function() -- Community Service Logic, including animations minigam
             TriggerServerEvent("bcc-law:endservice")
             Serviced = false
             RemoveBlip(Serviceblip)
-            Serviceblip = nil
             Core.NotifyBottomRight(_U('servicecomplete'), 4000)
             break
         end
@@ -227,7 +213,7 @@ CreateThread(function() -- Prompt and code to access Gun Cabinets
         local coords = GetEntityCoords(PlayerPedId())
         local isDead = IsEntityDead(PlayerPedId())
         for k, v in pairs(ConfigCabinets.Guncabinets) do
-            if GetDistanceBetweenCoords(coords, v.x, v.y, v.z, true) < 1.5 and not Inmenu then
+            if GetDistanceBetweenCoords(coords.x, coords.y, coords.z, v.x, v.y, v.z, true) < 1.5 and not Inmenu then
                 if not isDead then
                     local item_name = CreateVarString(10, 'LITERAL_STRING', _U('opencabinet'))
                     PromptSetActiveGroupThisFrame(prompt, item_name)
@@ -251,7 +237,7 @@ AddEventHandler('bcc-law:PlayerInWagon', function()
     local ped = PlayerPedId()
     local coords = GetEntityCoords(ped)
     local closestWagon = GetClosestVehicle(coords)
-    local vehicle = IsPedInVehicle(ped, closestWagon, 0)
+    local vehicle = IsPedInVehicle(ped, closestWagon, false)
     if ped ~= nil then
         if not vehicle then
             SetPedIntoVehicle(ped, closestWagon, -2)
@@ -280,7 +266,7 @@ CreateThread(function()
 end)
 
 RegisterNetEvent('bcc-law:StartSearch', function()
-    local closestPlayer, closestDistance = GetClosestPlayer()
+    local closestPlayer, closestDistance = GetClosestPlayerPed()
     searchid = GetPlayerServerId(closestPlayer)
     if closestPlayer ~= -1 and closestDistance <= 3.0 then
         TriggerServerEvent("bcc-law:ReloadInventory", searchid)
@@ -364,7 +350,7 @@ AddEventHandler("bcc-law:onduty", function(duty, data)
     end
 end)
 
-Badge = nil
+Badge = 0
 Badgex, Badgey, Badgez = 0.17, -0.19, -0.25
 BadgeCoords = nil
 MaleboneIndex = 458
@@ -457,77 +443,76 @@ end)
 
 RegisterCommand(ConfigMain.ondutycommand, function() -- on duty command
     TriggerEvent('bcc-law:goonduty')
-end)
-RegisterCommand(ConfigMain.adjustbadgecommand,
-    function()
-        local ped = PlayerPedId()
-        -- on duty command
-        local PromptGroup = VORPutils.Prompts:SetupPromptGroup()                                 --Setup Prompt Group
-        local firstprompt = PromptGroup:RegisterPrompt("Up", 0x6319DB71, 1, 1, true, 'click')    --Register your first prompt
-        local secondprompt = PromptGroup:RegisterPrompt("Down", 0x05CA7C52, 1, 1, true, 'click') --Register your first prompt
-        local thirdprompt = PromptGroup:RegisterPrompt("Left", 0x20190AB4, 1, 1, true, 'click')  --Register your first prompt
-        local fourthprompt = PromptGroup:RegisterPrompt("Right", 0xC97792B7, 1, 1, true, 'click')
-        local fifthprompt = PromptGroup:RegisterPrompt("In", 0xE6F612E4, 1, 1, true, 'click')    --Register your first prompt
-        local sixthprompt = PromptGroup:RegisterPrompt("Out", 0x1CE6D9EB, 1, 1, true, 'click')
-        local seventhprompt = PromptGroup:RegisterPrompt("Rotate Left", 0xAE69478F, 1, 1, true, 'click')
-        local eighthprompt = PromptGroup:RegisterPrompt("Rotate Right", 0x8F9F9E58, 1, 1, true, 'click')
+end, false)
+RegisterCommand(ConfigMain.adjustbadgecommand, function()
+    local ped = PlayerPedId()
+    -- on duty command
+    local PromptGroup = VORPutils.Prompts:SetupPromptGroup()                                 --Setup Prompt Group
+    local firstprompt = PromptGroup:RegisterPrompt("Up", 0x6319DB71, 1, 1, true, 'click')    --Register your first prompt
+    local secondprompt = PromptGroup:RegisterPrompt("Down", 0x05CA7C52, 1, 1, true, 'click') --Register your first prompt
+    local thirdprompt = PromptGroup:RegisterPrompt("Left", 0x20190AB4, 1, 1, true, 'click')  --Register your first prompt
+    local fourthprompt = PromptGroup:RegisterPrompt("Right", 0xC97792B7, 1, 1, true, 'click')
+    local fifthprompt = PromptGroup:RegisterPrompt("In", 0xE6F612E4, 1, 1, true, 'click')    --Register your first prompt
+    local sixthprompt = PromptGroup:RegisterPrompt("Out", 0x1CE6D9EB, 1, 1, true, 'click')
+    local seventhprompt = PromptGroup:RegisterPrompt("Rotate Left", 0xAE69478F, 1, 1, true, 'click')
+    local eighthprompt = PromptGroup:RegisterPrompt("Rotate Right", 0x8F9F9E58, 1, 1, true, 'click')
 
-        if PoliceOnDuty and badgeactive then
-            if not display then
-                display = true
-                --Register your first promp
-                while true do
-                    Wait(5)
+    if PoliceOnDuty and badgeactive then
+        if not display then
+            display = true
+            --Register your first promp
+            while true do
+                Wait(5)
 
-                    if display and badgeactive then
-                        if IsPedMale(ped) then
-                            AttachEntityToEntity(Badge, ped, MaleboneIndex, Badgex, Badgey, Badgez, -15.0, 0.0, Rotationz,
-                                true, true, false, true, 1, true)
-                        else
-                            AttachEntityToEntity(Badge, ped, FemaleboneIndex, Badgex, Badgey, Badgez, -15.0, 0.0,
-                                Rotationz,
-                                true, true, false, true, 1, true)
-                        end
-                        PromptGroup:ShowGroup("Move your badge") --Show your prompt group
-                        if firstprompt:HasCompleted() then
-                            Badgez = Badgez + 0.01
-                        end
-                        if secondprompt:HasCompleted() then
-                            Badgez = Badgez - 0.01
-                        end
-                        if thirdprompt:HasCompleted() then
-                            Badgex = Badgex + 0.01
-                        end
-                        if fourthprompt:HasCompleted() then
-                            Badgex = Badgex - 0.01
-                        end
-                        if fifthprompt:HasCompleted() then
-                            Badgey = Badgey + 0.01
-                        end
-                        if sixthprompt:HasCompleted() then
-                            Badgey = Badgey - 0.01
-                        end
-                        if seventhprompt:HasCompleted() then
-                            Rotationz = Rotationz + 2.0
-                        end
-                        if eighthprompt:HasCompleted() then
-                            Rotationz = Rotationz - 2.0
-                        end
+                if display and badgeactive then
+                    if IsPedMale(ped) then
+                        AttachEntityToEntity(Badge, ped, MaleboneIndex, Badgex, Badgey, Badgez, -15.0, 0.0, Rotationz,
+                            true, true, false, true, 1, true)
+                    else
+                        AttachEntityToEntity(Badge, ped, FemaleboneIndex, Badgex, Badgey, Badgez, -15.0, 0.0,
+                            Rotationz,
+                            true, true, false, true, 1, true)
+                    end
+                    PromptGroup:ShowGroup("Move your badge") --Show your prompt group
+                    if firstprompt:HasCompleted() then
+                        Badgez = Badgez + 0.01
+                    end
+                    if secondprompt:HasCompleted() then
+                        Badgez = Badgez - 0.01
+                    end
+                    if thirdprompt:HasCompleted() then
+                        Badgex = Badgex + 0.01
+                    end
+                    if fourthprompt:HasCompleted() then
+                        Badgex = Badgex - 0.01
+                    end
+                    if fifthprompt:HasCompleted() then
+                        Badgey = Badgey + 0.01
+                    end
+                    if sixthprompt:HasCompleted() then
+                        Badgey = Badgey - 0.01
+                    end
+                    if seventhprompt:HasCompleted() then
+                        Rotationz = Rotationz + 2.0
+                    end
+                    if eighthprompt:HasCompleted() then
+                        Rotationz = Rotationz - 2.0
                     end
                 end
-            else
-                display = false
-                firstprompt:TogglePrompt(false)
-                secondprompt:TogglePrompt(false)
-                thirdprompt:TogglePrompt(false)
-                fourthprompt:TogglePrompt(false)
-                fifthprompt:TogglePrompt(false)
-                sixthprompt:TogglePrompt(false)
-                seventhprompt:TogglePrompt(false)
-                eighthprompt:TogglePrompt(false)
             end
+        else
+            display = false
+            firstprompt:TogglePrompt(false)
+            secondprompt:TogglePrompt(false)
+            thirdprompt:TogglePrompt(false)
+            fourthprompt:TogglePrompt(false)
+            fifthprompt:TogglePrompt(false)
+            sixthprompt:TogglePrompt(false)
+            seventhprompt:TogglePrompt(false)
+            eighthprompt:TogglePrompt(false)
         end
-    end)
+    end
+end, false)
 
 RegisterNetEvent("bcc-law:gooffduty") -- Go off duty event
 AddEventHandler("bcc-law:gooffduty", function()
@@ -536,7 +521,7 @@ end)
 
 RegisterCommand(ConfigMain.offdutycommand, function() -- Go off duty command
     TriggerEvent('bcc-law:gooffduty')
-end)
+end, false)
 
 RegisterCommand(ConfigMain.openpolicemenu, function()
     if PoliceOnDuty and not IsEntityDead(PlayerPedId()) then
@@ -544,7 +529,7 @@ RegisterCommand(ConfigMain.openpolicemenu, function()
     else
         return
     end
-end)
+end, false)
 
 -- Disable player actions when handcuffed
 CreateThread(function()
@@ -623,31 +608,31 @@ AddEventHandler("bcc-law:JailPlayer", function(time, Location)
             Citizen.Wait(600)
             if JailID == "sk" then
                 SetEntityCoords(ped, ConfigJail.Jails.sisika.entrance.x, ConfigJail.Jails.sisika.entrance.y,
-                    ConfigJail.Jails.sisika.entrance.z)
+                    ConfigJail.Jails.sisika.entrance.z, false, false, false, false)
             elseif JailID == "bw" then
                 SetEntityCoords(ped, ConfigJail.Jails.blackwater.entrance.x, ConfigJail.Jails.blackwater.entrance.y,
-                    ConfigJail.Jails.blackwater.entrance.z)
+                    ConfigJail.Jails.blackwater.entrance.z, false, false, false, false)
             elseif JailID == "st" then
                 SetEntityCoords(ped, ConfigJail.Jails.strawberry.entrance.x, ConfigJail.Jails.strawberry.entrance.y,
-                    ConfigJail.Jails.strawberry.entrance.z)
+                    ConfigJail.Jails.strawberry.entrance.z, false, false, false, false)
             elseif JailID == "val" then
                 SetEntityCoords(ped, ConfigJail.Jails.valentine.entrance.x, ConfigJail.Jails.valentine.entrance.y,
-                    ConfigJail.Jails.valentine.entrance.z)
+                    ConfigJail.Jails.valentine.entrance.z, false, false, false, false)
             elseif JailID == "ar" then
                 SetEntityCoords(ped, ConfigJail.Jails.armadillo.entrance.x, ConfigJail.Jails.armadillo.entrance.y,
-                    ConfigJail.Jails.armadillo.entrance.z)
+                    ConfigJail.Jails.armadillo.entrance.z, false, false, false, false)
             elseif JailID == "tu" then
                 SetEntityCoords(ped, ConfigJail.Jails.tumbleweed.entrance.x, ConfigJail.Jails.tumbleweed.entrance.y,
-                    ConfigJail.Jails.tumbleweed.entrance.z)
+                    ConfigJail.Jails.tumbleweed.entrance.z, false, false, false, false)
             elseif JailID == "rh" then
                 SetEntityCoords(ped, ConfigJail.Jails.rhodes.entrance.x, ConfigJail.Jails.rhodes.entrance.y,
-                    ConfigJail.Jails.rhodes.entrance.z)
+                    ConfigJail.Jails.rhodes.entrance.z, false, false, false, false)
             elseif JailID == "sd" then
                 SetEntityCoords(ped, ConfigJail.Jails.stdenis.entrance.x, ConfigJail.Jails.stdenis.entrance.y,
-                    ConfigJail.Jails.stdenis.entrance.z)
+                    ConfigJail.Jails.stdenis.entrance.z, false, false, false, false)
             elseif JailID == "an" then
                 SetEntityCoords(ped, ConfigJail.Jails.annesburg.entrance.x, ConfigJail.Jails.annesburg.entrance.y,
-                    ConfigJail.Jails.annesburg.entrance.z)
+                    ConfigJail.Jails.annesburg.entrance.z, false, false, false, false)
             end
             FreezeEntityPosition(ped, true)
             Jail_time = time
@@ -720,33 +705,31 @@ AddEventHandler("bcc-law:UnjailPlayer", function(jaillocation)
     if Autotele then
         if JailID == "sk" then
             SetEntityCoords(local_ped, ConfigJail.Jails.sisika.exit.x, ConfigJail.Jails.sisika.exit.y,
-                ConfigJail.Jails.sisika.exit
-                .z)
+                ConfigJail.Jails.sisika.exit.z, false, false, false, false)
         elseif JailID == "bw" then
             SetEntityCoords(local_ped, ConfigJail.Jails.blackwater.exit.x, ConfigJail.Jails.blackwater.exit.y,
-                ConfigJail.Jails.blackwater.exit.z)
+                ConfigJail.Jails.blackwater.exit.z, false, false, false, false)
         elseif JailID == "st" then
             SetEntityCoords(local_ped, ConfigJail.Jails.strawberry.exit.x, ConfigJail.Jails.strawberry.exit.y,
-                ConfigJail.Jails.strawberry.exit.z)
+                ConfigJail.Jails.strawberry.exit.z, false, false, false, false)
         elseif JailID == "val" then
             SetEntityCoords(local_ped, ConfigJail.Jails.valentine.exit.x, ConfigJail.Jails.valentine.exit.y,
-                ConfigJail.Jails.valentine.exit.z)
+                ConfigJail.Jails.valentine.exit.z, false, false, false, false)
         elseif JailID == "ar" then
             SetEntityCoords(local_ped, ConfigJail.Jails.armadillo.exit.x, ConfigJail.Jails.armadillo.exit.y,
-                ConfigJail.Jails.armadillo.exit.z)
+                ConfigJail.Jails.armadillo.exit.z, false, false, false, false)
         elseif JailID == "tu" then
             SetEntityCoords(local_ped, ConfigJail.Jails.tumbleweed.exit.x, ConfigJail.Jails.tumbleweed.exit.y,
-                ConfigJail.Jails.tumbleweed.exit.z)
+                ConfigJail.Jails.tumbleweed.exit.z, false, false, false, false)
         elseif JailID == "rh" then
             SetEntityCoords(local_ped, ConfigJail.Jails.rhodes.exit.x, ConfigJail.Jails.rhodes.exit.y,
-                ConfigJail.Jails.rhodes.exit
-                .z)
+                ConfigJail.Jails.rhodes.exit.z, false, false, false, false)
         elseif JailID == "sd" then
             SetEntityCoords(local_ped, ConfigJail.Jails.stdenis.exit.x, ConfigJail.Jails.stdenis.exit.y,
-                ConfigJail.Jails.stdenis.exit.z)
+                ConfigJail.Jails.stdenis.exit.z, false, false, false, false)
         elseif JailID == "an" then
             SetEntityCoords(local_ped, ConfigJail.Jails.annesburg.exit.x, ConfigJail.Jails.annesburg.exit.y,
-                ConfigJail.Jails.annesburg.exit.z)
+                ConfigJail.Jails.annesburg.exit.z, false, false, false, false)
         end
         SetPlayerInvincible(local_player, false)
     else
@@ -768,7 +751,7 @@ end)
 
 RegisterNetEvent("bcc-law:lockpick") -- Lockpicking handcuffs event
 AddEventHandler("bcc-law:lockpick", function()
-    local closestPlayer, closestDistance = GetClosestPlayer()
+    local closestPlayer, closestDistance = GetClosestPlayerPed()
     local isDead = IsEntityDead(PlayerPedId())
 
     if closestPlayer ~= -1 and closestDistance <= 3.0 then
@@ -829,7 +812,6 @@ CreateThread(function() -- Added time if over max distance/count down until unJa
         if Jail_time < 1 then
             local player_server_id = GetPlayerServerId(PlayerId())
             RemoveBlip(Serviceblip)
-            Serviceblip = nil
             TriggerServerEvent("bcc-law:finishedjail", player_server_id, jaillocation)
         else
             Jail_time = Jail_time - 1
@@ -896,7 +878,7 @@ CreateThread(function() -- Timer for leaving community service logic, which jail
                 local diftime = GetGameTimer() - gametime
                 printtime = math.floor(seconds - (diftime / 1000))
                 DrawTxt(_U('youhave') .. printtime .. _U('secondsremaining'), 0.50, 0.95, 0.6, 0.6, true, 255, 255, 255,
-                    255, true, 10000)
+                    255, true)
             else
                 Citizen.Wait(1000)
                 Brokedistance = false
