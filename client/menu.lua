@@ -680,7 +680,7 @@ AddEventHandler('bcc-law:OpenBossMenu', function(cabid)
         label = _U('hireemployeemenu'),
         style = {},
     }, function()
-        local players = getPlayersInRange(5.0)
+        local players = GetPlayersInRange(5.0)
         local PlayerServerIds = {}
         for key, value in pairs(players) do
             table.insert(PlayerServerIds, GetPlayerServerId(value))
