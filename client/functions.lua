@@ -10,7 +10,7 @@ TriggerEvent("getUtils", function(utils)
 end)
 
 
-function getPlayersInRange(distance)
+function GetPlayersInRange(distance)
     local playersInRange = {}
     local playerPed = PlayerPedId()              -- Get the player's Ped ID
     local playerPos = GetEntityCoords(playerPed) -- Get the player's current position
@@ -91,18 +91,11 @@ function CuffPlayer(closestPlayer) -- Prompt and code to access Gun Cabinets
         local isDead = IsEntityDead(PlayerPedId())
         Wait(0)
         if distance <= 1.5 then
-            if not isDead then
-                if IsSearching then
-                    if not Inmenu then
-                        if not InWagon then
-                            local item_name = CreateVarString(10, 'LITERAL_STRING', _U('searchplayer'))
-                            PromptSetActiveGroupThisFrame(prompt2, item_name)
-                        end
-                    end
-                end
+            if not isDead and IsSearching and not Inmenu and not InWagon then
+                UiPromptSetActiveGroupThisFrame(Prompt2, CreateVarString(10, 'LITERAL_STRING', _U('searchplayer')))
             end
         end
-        if PromptHasHoldModeCompleted(Search) then
+        if UiPromptHasHoldModeCompleted(Search) then
             TriggerServerEvent('bcc-law:grabdata', GetPlayerServerId(closestPlayer))
             Wait(200)
             if Takenmoney then

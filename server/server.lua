@@ -1,6 +1,18 @@
 local Core = exports.vorp_core:GetCore()
 local BccUtils = exports['bcc-utils'].initiate()
 
+--- Server Shoot-Alert Logic
+local policeAlert = exports['bcc-job-alerts']:RegisterAlert(Alerts.Police)
+
+RegisterServerEvent('bcc-law:ShootAlarm', function()
+    local src = source
+    local rnd = math.random(0, 100)
+    if rnd <= ConfigMain.AlertChance then
+        policeAlert:SendAlert(src)
+    end
+end)
+---
+
 RegisterServerEvent("bcc-law:grabdata") -- Go on duty, add cop count, restrict based off Max cop count event
 AddEventHandler("bcc-law:grabdata", function(id)
     local _source = source
@@ -516,7 +528,7 @@ RegisterCommand(ConfigMain.finecommand, function(source, args, rawCommand)
     local Character = Core.getUser(_source).getUsedCharacter
     local target = args[1]
     local fine = args[2]
-    if Character.group == "admin" or CheckTable(OnDutyJobs, job) then
+    if Character.group == "admin" or CheckTable(OnDutyJobs, Character.job) then
         TriggerEvent("bcc-law:FinePlayer", tonumber(target), tonumber(fine))
     end
 end, false)
@@ -543,7 +555,7 @@ RegisterCommand(ConfigMain.unjailcommand, function(source, args, rawCommand)
     local target = tonumber(args[1])
     if target then
         if Core.getUser(target) then
-            if Character.group == "admin" or CheckTable(OnDutyJobs, job) then
+            if Character.group == "admin" or CheckTable(OnDutyJobs, Character.job) then
                 TriggerEvent("bcc-law:unjailed", target)
             end
         end
